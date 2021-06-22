@@ -3,7 +3,6 @@ import os
 import pathlib
 from abc import ABC, abstractmethod
 from sys import path
-from zipfile import ZipFile
 from typing import Union, Tuple
 
 from .crypto import SECURE_HASH_ALGORITHM
@@ -152,85 +151,3 @@ def find_replace_with_hash_validation(
         replaced_path, expected_sha384_hash=expected_sha384_hash
     )
     return replaced_path
-
-
-class UnsupportedArchiveFormatError(Exception):
-    def __init__(self, format):
-        super().__init__()
-        self.format = format
-
-    def __str__(self):
-        return f"{self.format} format is not currently supported."
-
-
-class ArchiveHelper(ABC):
-    """
-    The base class for all archive helper classes
-    """
-
-    @abstractmethod
-    def __init__(self, path):
-        super().__init__()
-        # Path of the input file/folder
-        self.path = pathlib.Path(path)
-
-    @abstractmethod
-    def extract(self, output_dir=None):
-        """
-        Extracts the archive to output_dir 
-        If output_dir is None the file is extracted to the 
-        same parent directory as the file.
-        """
-
-    @abstractmethod
-    def add(self, output_path):
-        """
-        Adds the folder to an archive.
-        """
-
-    def fetch_file_paths(self, directory):
-        director_path = pathlib.Path(directory)
-        file_paths_list = [file_path for file_path in director_path.rglob("*")]
-        return file_paths_list
-
-
-class ZipHelper(ArchiveHelper):
-    def __init__(self, path):
-        super().__init__(path)
-
-    def extract(self, output_dir=None):
-        output_dir = self.path.parent if output_dir is None else output_dir
-        with ZipFile(self.path, "r") as zip:
-            zip.extractall(output_dir)
-
-    def add(self, output_path):
-        # TODO: handle the case for None output_path
-        file_path_list = self.fetch_file_paths(self.path)
-        with ZipFile(output_path, "w") as zip:
-            for file in file_path_list:
-                zip.write(file)
-
-
-SUPPORTED_ARCHIVE_FORMATS = {
-    "zip": ZipHelper,
-    "gz": None,
-    "bz2": None,
-    "xz": None,
-}
-
-
-async def compress_folder(folder_path, output_format, output_path=None):
-    archive_handler_cls = SUPPORTED_ARCHIVE_FORMATS.get(output_format, None)
-    if archive_handler_cls is None:
-        raise UnsupportedArchiveFormatError(output_format)
-    archive_handler = archive_handler_cls(folder_path)
-    archive_handler.add(output_path)
-
-
-async def inflate_archive(archive_path, output_path=None):
-    archive_format = os.path.splitext(archive_path)[1][1:]
-    archive_handler_cls = SUPPORTED_ARCHIVE_FORMATS.get(archive_format, None)
-    if archive_handler_cls is None:
-        raise UnsupportedArchiveFormatError(archive_format)
-    archive_handler = archive_handler_cls(archive_path)
-    archive_handler.extract(output_path)
