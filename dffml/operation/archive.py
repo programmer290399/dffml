@@ -17,26 +17,26 @@ ZIP_FILE = Definition(name="zip_file", primitive="str")
     outputs={},
 )
 async def make_zip_archive(
-    input_directory_path: Union[Path, str],
-    output_file_path: Optional[Union[Path, str]] = None,
+    input_directory_path: str, output_file_path: Optional[str] = None,
 ):
     """
     Creates zip file of a directory.
 
     Parameters
     ----------
-    input_directory_path : Union[Path, str]
+    input_directory_path : str
         Path to directory to be archived
-    output_file_path : Optional[Union[Path, str]], optional
+    output_file_path : Optional[str], optional
         If set output file would be saved to this path otherwise 
         file is saved in the given directory, by default None
     """
+    input_directory_path = Path(input_directory_path)
     if output_file_path is None:
         file_name = str(uuid.uuid4()) + ".zip"
-        output_file_path = Path(input_directory_path) / file_name
+        output_file_path = input_directory_path.parent / file_name
     with ZipFile(output_file_path, "w") as zip:
         for file in input_directory_path.rglob("*"):
-            zip.write(file)
+            zip.write(file, file.name)
 
 
 @op(
@@ -44,17 +44,16 @@ async def make_zip_archive(
     outputs={},
 )
 async def extract_zip_archive(
-    input_file_path: Union[Path, str],
-    output_directory_path: Optional[Union[Path, str]] = None,
+    input_file_path: str, output_directory_path: Optional[str] = None,
 ):
     """
     Extracts a given zip file.
 
     Parameters
     ----------
-    input_file_path : Union[Path, str]
+    input_file_path : str
         Path to the zip file
-    output_directory_path : Optional[Union[Path, str]], optional
+    output_directory_path : Optional[str], optional
         If set the file would be extracted to this path otherwise 
         the file would be extracted in the same directory as source, by default None
     """
