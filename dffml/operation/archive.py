@@ -8,22 +8,17 @@ from ..df.types import Definition
 
 
 # definitions
-PATH = Definition(name="path", primitive="Union[Path, str]")
-OPTIONS = Definition(name="options", primitive="Dict[str, Any]")
+DIRECTORY = Definition(name="directory", primitive="str")
+ZIP_FILE = Definition(name="zip_file", primitive="str")
 
 
 @op(
-    inputs={
-        "input_directory_path": PATH,
-        "output_file_path": PATH,
-        "options": OPTIONS,
-    },
+    inputs={"input_directory_path": DIRECTORY, "output_file_path": ZIP_FILE},
     outputs={},
 )
 async def make_zip_archive(
     input_directory_path: Union[Path, str],
     output_file_path: Optional[Union[Path, str]] = None,
-    **options: Optional[Dict[str, Any]],
 ):
     """
     Creates zip file of a directory.
@@ -39,23 +34,18 @@ async def make_zip_archive(
     if output_file_path is None:
         file_name = str(uuid.uuid4()) + ".zip"
         output_file_path = Path(input_directory_path) / file_name
-    with ZipFile(output_file_path, "w", **options) as zip:
+    with ZipFile(output_file_path, "w") as zip:
         for file in input_directory_path.rglob("*"):
             zip.write(file)
 
 
 @op(
-    inputs={
-        "input_file_path": PATH,
-        "output_directory_path": PATH,
-        "options": OPTIONS,
-    },
+    inputs={"input_file_path": ZIP_FILE, "output_directory_path": DIRECTORY},
     outputs={},
 )
 async def extract_zip_archive(
     input_file_path: Union[Path, str],
     output_directory_path: Optional[Union[Path, str]] = None,
-    **options: Optional[Dict[str, Any]],
 ):
     """
     Extracts a given zip file.
@@ -70,5 +60,5 @@ async def extract_zip_archive(
     """
     if output_directory_path is None:
         output_directory_path = Path(input_file_path).parent.absolute()
-    with ZipFile(input_file_path, "r", **options) as zip:
+    with ZipFile(input_file_path, "r") as zip:
         zip.extractall(output_directory_path)
