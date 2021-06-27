@@ -1,7 +1,7 @@
 import uuid
 from zipfile import ZipFile
 from pathlib import Path
-from typing import Union, Dict, Any, Optional
+from typing import Optional
 
 from ..df.base import op
 from ..df.types import Definition
