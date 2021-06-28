@@ -1,7 +1,7 @@
 from unittest import mock
 from unittest.mock import patch, mock_open
 
-from dffml import run
+from dffml import modules, run
 from dffml.df.types import DataFlow, Input
 from dffml.util.asynctestcase import AsyncTestCase
 from dffml.operation.archive import (
@@ -101,27 +101,29 @@ class TestTarOperations(AsyncTestCase):
             async for _, _ in run(dataflow):
                 m_open.assert_called_once_with(self.test_file_pth, "xb")
 
-    # async def test_extract_tar_op(self):
-    #     dataflow = create_dataflow(
-    #         extract_tar_archive,
-    #         {
-    #             Input(
-    #                 value=self.test_file_pth,
-    #                 definition=extract_tar_archive.op.inputs[
-    #                     "input_file_path"
-    #                 ],
-    #             ),
-    #             Input(
-    #                 value=self.test_dir_pth,
-    #                 definition=extract_tar_archive.op.inputs[
-    #                     "output_directory_path"
-    #                 ],
-    #             ),
-    #         },
-    #     )
-    #     m_open = mock_open()
-    #     with patch("builtins.open", m_open), patch(
-    #         "tarfile.TarFile.extractall"
-    #     ):  # , patch("tarfile.open"):
-    #         async for _, _ in run(dataflow):
-    #             m_open.assert_called_once_with(self.test_file_pth, "xb")
+    async def test_extract_tar_op(self):
+        dataflow = create_dataflow(
+            extract_tar_archive,
+            {
+                Input(
+                    value=self.test_file_pth,
+                    definition=extract_tar_archive.op.inputs[
+                        "input_file_path"
+                    ],
+                ),
+                Input(
+                    value=self.test_dir_pth,
+                    definition=extract_tar_archive.op.inputs[
+                        "output_directory_path"
+                    ],
+                ),
+            },
+        )
+        m_open = mock_open()
+        with patch("builtins.open", m_open), patch(
+            "tarfile.TarFile.extractall"
+        ), patch(
+            "tarfile.TarInfo.fromtarfile", m_open
+        ):  # , patch("tarfile.open"):
+            async for _, _ in run(dataflow):
+                m_open.assert_any_call("test/path/to/tar_file.tar", "rb")
