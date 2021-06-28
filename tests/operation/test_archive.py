@@ -1,7 +1,6 @@
-from unittest import mock
 from unittest.mock import patch, mock_open
 
-from dffml import modules, run
+from dffml import run
 from dffml.df.types import DataFlow, Input
 from dffml.util.asynctestcase import AsyncTestCase
 from dffml.operation.archive import (
@@ -15,7 +14,10 @@ from dffml.operation.archive import (
 def create_dataflow(operation, seed):
     dataflow = DataFlow(
         operations={operation.op.name: operation},
-        seed=seed,
+        seed={
+            Input(value=val, definition=operation.op.inputs[input_name])
+            for input_name, val in seed.items()
+        },
         implementations={operation.op.name: operation.imp},
     )
     return dataflow
@@ -29,16 +31,8 @@ class TestZipOperations(AsyncTestCase):
         dataflow = create_dataflow(
             make_zip_archive,
             {
-                Input(
-                    value=self.test_dir_pth,
-                    definition=make_zip_archive.op.inputs[
-                        "input_directory_path"
-                    ],
-                ),
-                Input(
-                    value=self.test_file_pth,
-                    definition=make_zip_archive.op.inputs["output_file_path"],
-                ),
+                "input_directory_path": self.test_dir_pth,
+                "output_file_path": self.test_file_pth,
             },
         )
         m_open = mock_open()
@@ -52,18 +46,8 @@ class TestZipOperations(AsyncTestCase):
         dataflow = create_dataflow(
             extract_zip_archive,
             {
-                Input(
-                    value=self.test_file_pth,
-                    definition=extract_zip_archive.op.inputs[
-                        "input_file_path"
-                    ],
-                ),
-                Input(
-                    value=self.test_dir_pth,
-                    definition=extract_zip_archive.op.inputs[
-                        "output_directory_path"
-                    ],
-                ),
+                "input_file_path": self.test_file_pth,
+                "output_directory_path": self.test_dir_pth,
             },
         )
         m_open = mock_open()
@@ -82,16 +66,8 @@ class TestTarOperations(AsyncTestCase):
         dataflow = create_dataflow(
             make_tar_archive,
             {
-                Input(
-                    value=self.test_dir_pth,
-                    definition=make_tar_archive.op.inputs[
-                        "input_directory_path"
-                    ],
-                ),
-                Input(
-                    value=self.test_file_pth,
-                    definition=make_tar_archive.op.inputs["output_file_path"],
-                ),
+                "input_directory_path": self.test_dir_pth,
+                "output_file_path": self.test_file_pth,
             },
         )
         m_open = mock_open()
@@ -105,18 +81,8 @@ class TestTarOperations(AsyncTestCase):
         dataflow = create_dataflow(
             extract_tar_archive,
             {
-                Input(
-                    value=self.test_file_pth,
-                    definition=extract_tar_archive.op.inputs[
-                        "input_file_path"
-                    ],
-                ),
-                Input(
-                    value=self.test_dir_pth,
-                    definition=extract_tar_archive.op.inputs[
-                        "output_directory_path"
-                    ],
-                ),
+                "input_file_path": self.test_file_pth,
+                "output_directory_path": self.test_dir_pth,
             },
         )
         m_open = mock_open()
