@@ -15,7 +15,7 @@ FORMAT = Definition(name="format", primitive="str")
 SUPPORTED_COMPRESSION_FORMATS = {".gz": gzip, ".bz2": bz2, ".xz": lzma}
 
 
-class UnsupportedArchiveFormatError(Exception):
+class UnsupportedCompressionFormatError(Exception):
     def __init__(self, format):
         super().__init__()
         self.format = format
@@ -27,7 +27,7 @@ class UnsupportedArchiveFormatError(Exception):
 def get_compression_class(format):
     compression_cls = SUPPORTED_COMPRESSION_FORMATS.get(format, None)
     if compression_cls is None:
-        raise UnsupportedArchiveFormatError(format)
+        raise UnsupportedCompressionFormatError(format)
     return compression_cls
 
 
