@@ -88,8 +88,6 @@ class TestTarOperations(AsyncTestCase):
         m_open = mock_open()
         with patch("builtins.open", m_open), patch(
             "tarfile.TarFile.extractall"
-        ), patch(
-            "tarfile.TarInfo.fromtarfile", m_open
-        ):  # , patch("tarfile.open"):
+        ), patch("tarfile.TarInfo.fromtarfile", m_open):
             async for _, _ in run(dataflow):
                 m_open.assert_any_call("test/path/to/tar_file.tar", "rb")
