@@ -42,6 +42,18 @@ def get_compression_class(format):
 async def compress(
     input_file_path: str, output_file_path: str, file_format: str
 ):
+    """
+    A simple function to compress a file in a certain format.
+
+    Parameters
+    ----------
+    input_file_path : str
+        Path of the file to be compressed.
+    output_file_path : str
+        Path where the output should be saved (should include file name).
+    file_format : str
+        Format of the compressed output file.
+    """
     compression_cls = get_compression_class(file_format)
     with open(input_file_path, "rb") as f_in:
         with compression_cls.open(output_file_path, "wb") as f_out:
@@ -56,6 +68,16 @@ async def compress(
     outputs={},
 )
 async def de_compress(input_file_path: str, output_file_path: str):
+    """
+    A simple function to de_compress a file.
+
+    Parameters
+    ----------
+    input_file_path : str
+        Path of the file to be decompressed.
+    output_file_path : str
+        Path where the output should be saved (should include file name).
+    """
     input_file_path = Path(input_file_path)
     file_format = input_file_path.suffix
     compression_cls = get_compression_class(file_format)
