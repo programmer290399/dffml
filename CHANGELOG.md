@@ -9,12 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Consolidate test case classes
 - Tutorial on how to load models dynamically
   https://intel.github.io/dffml/tutorials/models/load.html
-- Added download progressbar in `util/net.py`
+- Download progressbar in `util/net.py`
 - Usecase example notebook for "Moving between models"
 - Documentation and testing support for notebooks
 - Example on how to create operations and use data preprocessing source to train models
   https://intel.github.io/dffml/examples/ice_cream.html
-- Added operations for compression and archives.
+- Operations for compression and archives.
 ### Changed
 - Calls to hashlib now go through helper functions
 - Build docs using `dffml service dev docs`
