@@ -2,7 +2,6 @@ import uuid
 import tarfile
 from pathlib import Path
 from zipfile import ZipFile
-from typing import Optional
 
 from ..df.base import op
 from ..df.types import Definition
@@ -19,7 +18,7 @@ TAR_FILE = Definition(name="tar_file", primitive="str")
     outputs={},
 )
 async def make_zip_archive(
-    input_directory_path: str, output_file_path: Optional[str] = None,
+    input_directory_path: str, output_file_path: str,
 ):
     """
     Creates zip file of a directory.
@@ -28,14 +27,10 @@ async def make_zip_archive(
     ----------
     input_directory_path : str
         Path to directory to be archived
-    output_file_path : Optional[str], optional
-        If set output file would be saved to this path otherwise 
-        file is saved in the given directory, by default None
+    output_file_path : str
+        Path where the output archive should be saved (should include file name)
     """
     input_directory_path = Path(input_directory_path)
-    if output_file_path is None:
-        file_name = str(uuid.uuid4()) + ".zip"
-        output_file_path = input_directory_path.parent / file_name
     with ZipFile(output_file_path, "w") as zip:
         for file in input_directory_path.rglob("*"):
             zip.write(file, file.name)
@@ -46,7 +41,7 @@ async def make_zip_archive(
     outputs={},
 )
 async def extract_zip_archive(
-    input_file_path: str, output_directory_path: Optional[str] = None,
+    input_file_path: str, output_directory_path: str,
 ):
     """
     Extracts a given zip file.
@@ -55,12 +50,9 @@ async def extract_zip_archive(
     ----------
     input_file_path : str
         Path to the zip file
-    output_directory_path : Optional[str], optional
-        If set the file would be extracted to this path otherwise 
-        the file would be extracted in the same directory as source, by default None
+    output_directory_path : str
+        Path where all the files should be extracted
     """
-    if output_directory_path is None:
-        output_directory_path = Path(input_file_path).parent.absolute()
     with ZipFile(input_file_path, "r") as zip:
         zip.extractall(output_directory_path)
 
@@ -70,7 +62,7 @@ async def extract_zip_archive(
     outputs={},
 )
 async def make_tar_archive(
-    input_directory_path: str, output_file_path: Optional[str] = None,
+    input_directory_path: str, output_file_path: str,
 ):
     """
     Creates tar file of a directory.
@@ -79,14 +71,10 @@ async def make_tar_archive(
     ----------
     input_directory_path : str
         Path to directory to be archived as a tarfile.
-    output_file_path : Optional[str], optional
-        If set output file would be saved to this path otherwise 
-        file is saved in the given directory, by default None
+    output_file_path : str
+        Path where the output archive should be saved (should include file name)
     """
     input_directory_path = Path(input_directory_path)
-    if output_file_path is None:
-        file_name = str(uuid.uuid4()) + ".tar"
-        output_file_path = input_directory_path.parent / file_name
     with tarfile.open(output_file_path, mode="x") as tar:
         for file in input_directory_path.rglob("*"):
             tar.add(file, file.name)
@@ -97,7 +85,7 @@ async def make_tar_archive(
     outputs={},
 )
 async def extract_tar_archive(
-    input_file_path: str, output_directory_path: Optional[str] = None,
+    input_file_path: str, output_directory_path: str,
 ):
     """
     Extracts a given tar file.
@@ -106,11 +94,8 @@ async def extract_tar_archive(
     ----------
     input_file_path : str
         Path to the tar file
-    output_directory_path : Optional[str], optional
-        If set the file would be extracted to this path otherwise 
-        the file would be extracted in the same directory as source, by default None
+    output_directory_path : str
+        Path where all the files should be extracted
     """
-    if output_directory_path is None:
-        output_directory_path = Path(input_file_path).parent.absolute()
     with tarfile.open(input_file_path, "r") as tar:
         tar.extractall(output_directory_path)
